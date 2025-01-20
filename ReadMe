@@ -1,0 +1,79 @@
+//DailyTransactionSummary
+
+options({
+    processingLag: 0
+})
+
+fromCategory('account').when({
+    $init: function() {
+        return {
+            dailyTransactions: {}
+        };
+    },
+    $any: function(state, event) {
+        var date = new Date(event.data.timestamp || Date.now()).toISOString().split('T')[0];
+        
+        if (!state.dailyTransactions[date]) {
+            state.dailyTransactions[date] = {
+                totalCredits: 0,
+                totalDebits: 0,
+                numberOfTransactions: 0
+            };
+        }
+
+        switch (event.eventType) {
+            case 'AmountCredited':
+                state.dailyTransactions[date].totalCredits += event.data.amount;
+                state.dailyTransactions[date].numberOfTransactions++;
+                break;
+            case 'AmountDebited':
+                state.dailyTransactions[date].totalDebits += event.data.amount;
+                state.dailyTransactions[date].numberOfTransactions++;
+                break;
+        }
+    }
+});
+
+----------------------------------------
+
+//account-activity-monitor
+
+options({
+    processingLag: 0
+})
+
+fromCategory('account').when({
+    $init: function() {
+        return {
+            accounts: {}
+        };
+    },
+    $any: function(state, event) {
+        var accountNumber = event.streamId.split('-')[1];
+        
+        if (!state.accounts[accountNumber]) {
+            state.accounts[accountNumber] = {
+                lastActivity: null,
+                transactionCount: 0,
+                status: 'active',
+                totalTransactions: 0
+            };
+        }
+
+        state.accounts[accountNumber].lastActivity = new Date(event.data.timestamp || Date.now()).toISOString();
+        state.accounts[accountNumber].transactionCount++;
+
+        switch (event.eventType) {
+            case 'AccountCreated':
+                state.accounts[accountNumber].status = 'active';
+                break;
+            case 'AccountDeleted':
+                state.accounts[accountNumber].status = 'deleted';
+                break;
+            case 'AmountCredited':
+            case 'AmountDebited':
+                state.accounts[accountNumber].totalTransactions++;
+                break;
+        }
+    }
+});

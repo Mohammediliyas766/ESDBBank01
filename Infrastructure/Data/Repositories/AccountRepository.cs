@@ -40,4 +40,14 @@ public class AccountRepository : IAccountRepository
         _context.Accounts.Update(account);
         await _context.SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(string accountNumber)
+    {
+        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountNumber == accountNumber);
+        if (account != null)
+        {
+            _context.Accounts.Remove(account);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

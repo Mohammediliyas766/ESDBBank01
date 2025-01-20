@@ -177,4 +177,5 @@ C:\Users\mohil\ILIYAS\Courses\Devops\EventStore\ESDB-BankAPI\BankAPI\BankAPI\obj
 C:\Users\mohil\ILIYAS\Courses\Devops\EventStore\ESDB-BankAPI\BankAPI\BankAPI\obj\Debug\net8.0\BankAPI.pdb
 C:\Users\mohil\ILIYAS\Courses\Devops\EventStore\ESDB-BankAPI\BankAPI\BankAPI\obj\Debug\net8.0\BankAPI.genruntimeconfig.cache
 C:\Users\mohil\ILIYAS\Courses\Devops\EventStore\ESDB-BankAPI\BankAPI\BankAPI\obj\Debug\net8.0\ref\BankAPI.dll
+C:\Users\mohil\ILIYAS\Courses\Devops\EventStore\ESDB-BankAPI\BankAPI\BankAPI\obj\Debug\net8.0\BankAPI.sourcelink.json
 C:\Users\mohil\ILIYAS\Courses\Devops\EventStore\ESDB-BankAPI\BankAPI\BankAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

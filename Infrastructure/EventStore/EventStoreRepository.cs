@@ -53,4 +53,24 @@ public class EventStoreRepository : IEventStore
 
         return events;
     }
+
+    public async Task<object?> GetProjectionResultAsync(string projectionName, string partitionKey)
+    {
+        var result = _client.ReadStreamAsync(
+            Direction.Forwards,
+            $"${projectionName}-{partitionKey}",
+            StreamPosition.Start
+        );
+
+        var events = new List<ResolvedEvent>();
+        await foreach (var @event in result)
+        {
+            events.Add(@event);
+        }
+
+        if (events.Count == 0)
+            return null;
+
+        return JsonSerializer.Deserialize<object>(events[events.Count - 1].Event.Data.Span);
+    }
 }

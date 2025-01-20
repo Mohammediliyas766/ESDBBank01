@@ -104,4 +104,36 @@ public class BankController : ControllerBase
 
         return Ok(account);
     }
+
+    [HttpDelete("{accountNumber}")]
+    public async Task<IActionResult> DeleteAccount(string accountNumber)
+    {
+        var account = await _accountRepository.GetByAccountNumberAsync(accountNumber);
+        if (account == null)
+            return NotFound();
+
+        if (account.Balance > 0)
+            return BadRequest("Cannot delete account with positive balance");
+
+        await _accountRepository.DeleteAsync(accountNumber);
+
+        var @event = new AccountDeleted(accountNumber, DateTime.UtcNow);
+        await _eventStore.SaveEventAsync($"account-{accountNumber}", @event);
+
+        return NoContent();
+    }
+
+    [HttpGet("daily-summary/{date}")]
+    public async Task<IActionResult> GetDailySummary(string date)
+    {
+        var result = await _eventStore.GetProjectionResultAsync("DailyTransactionSummary", date);
+        return Ok(result);
+    }
+
+    [HttpGet("account-activity/{accountNumber}")]
+    public async Task<IActionResult> GetAccountActivity(string accountNumber)
+    {
+        var result = await _eventStore.GetProjectionResultAsync("AccountActivityMonitor", accountNumber);
+        return Ok(result);
+    }
 }

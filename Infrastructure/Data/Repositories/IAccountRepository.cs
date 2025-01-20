@@ -9,4 +9,5 @@ public interface IAccountRepository
     Task<bool> AccountNumberExistsAsync(string accountNumber);
     Task CreateAsync(Account account);
     Task UpdateAsync(Account account);
+    Task DeleteAsync(string accountNumber);
 }

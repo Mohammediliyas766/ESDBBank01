@@ -16,8 +16,15 @@ builder.Services.AddDbContext<BankDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add EventStoreDB Client
-builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Create(
-    builder.Configuration.GetConnectionString("EventStore"))));
+var eventStoreConnection = builder.Configuration.GetConnectionString("EventStore");
+if (string.IsNullOrEmpty(eventStoreConnection))
+{
+    throw new InvalidOperationException("EventStore connection string is not configured");
+}
+
+builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Create(eventStoreConnection)));
+//builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Create(
+//    builder.Configuration.GetConnectionString("EventStore"))));
 
 // Add Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
