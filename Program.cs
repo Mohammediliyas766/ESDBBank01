@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using BankAPI.Infrastructure.Data;
 using BankAPI.Infrastructure.Data.Repositories;
 using BankAPI.Infrastructure.EventStore;
 using EventStore.Client;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

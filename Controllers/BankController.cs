@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
-using BankAPI.Domain.Models;
 using BankAPI.Domain.Events;
+using BankAPI.Domain.Models;
+using BankAPI.DTOs;
 using BankAPI.Infrastructure.Data.Repositories;
 using BankAPI.Infrastructure.EventStore;
-using BankAPI.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BankAPI.Controllers;
 

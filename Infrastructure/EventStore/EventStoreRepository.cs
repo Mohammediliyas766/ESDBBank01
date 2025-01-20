@@ -1,8 +1,5 @@
 using EventStore.Client;
 using System.Text.Json;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BankAPI.Infrastructure.EventStore;
 

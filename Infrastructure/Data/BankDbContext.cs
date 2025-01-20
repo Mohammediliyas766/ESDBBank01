@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using BankAPI.Domain.Models;
-using System.Collections.Generic;
-using System.Reflection.Emit;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankAPI.Infrastructure.Data;
 

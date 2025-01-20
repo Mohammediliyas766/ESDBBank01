@@ -1,7 +1,5 @@
 using BankAPI.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BankAPI.Infrastructure.Data.Repositories;
 
