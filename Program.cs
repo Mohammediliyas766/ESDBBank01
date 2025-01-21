@@ -22,9 +22,10 @@ if (string.IsNullOrEmpty(eventStoreConnection))
     throw new InvalidOperationException("EventStore connection string is not configured");
 }
 
-builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Create(eventStoreConnection)));
-//builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Create(
-//    builder.Configuration.GetConnectionString("EventStore"))));
+builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Create(
+    builder.Configuration.GetConnectionString("EventStore") ??
+    throw new InvalidOperationException("EventStore connection string is missing.")
+)));
 
 // Add Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
