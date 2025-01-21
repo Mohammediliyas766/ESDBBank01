@@ -128,37 +128,5 @@
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BankAPI.Controllers.BankController",
-    "Method": "GetAccountActivity",
-    "RelativePath": "api/Bank/account-activity/{accountNumber}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "accountNumber",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BankAPI.Controllers.BankController",
-    "Method": "GetDailySummary",
-    "RelativePath": "api/Bank/daily-summary/{date}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "date",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   }
 ]

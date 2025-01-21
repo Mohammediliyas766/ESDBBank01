@@ -16,7 +16,6 @@ public class EventStoreRepository : IEventStore
     {
         var eventType = eventData.GetType().Name;
         var data = JsonSerializer.SerializeToUtf8Bytes(eventData);
-        // Change the variable name to avoid conflict
         var eventDataObj = new EventData(
             Uuid.NewUuid(),
             eventType,
@@ -26,7 +25,7 @@ public class EventStoreRepository : IEventStore
         await _client.AppendToStreamAsync(
             streamName,
             StreamState.Any,
-            new[] { eventDataObj }  // Use the renamed variable
+            new[] { eventDataObj }
         );
     }
 
@@ -41,33 +40,11 @@ public class EventStoreRepository : IEventStore
 
         await foreach (var @event in result)
         {
-            var eventData = JsonSerializer.Deserialize<object>(
-                @event.Event.Data.Span
-            );
+            var eventData = JsonSerializer.Deserialize<object>(@event.Event.Data.Span);
             if (eventData != null)
                 events.Add(eventData);
         }
 
         return events;
-    }
-
-    public async Task<object?> GetProjectionResultAsync(string projectionName, string partitionKey)
-    {
-        var result = _client.ReadStreamAsync(
-            Direction.Forwards,
-            $"${projectionName}-{partitionKey}",
-            StreamPosition.Start
-        );
-
-        var events = new List<ResolvedEvent>();
-        await foreach (var @event in result)
-        {
-            events.Add(@event);
-        }
-
-        if (events.Count == 0)
-            return null;
-
-        return JsonSerializer.Deserialize<object>(events[events.Count - 1].Event.Data.Span);
     }
 }

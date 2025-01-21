@@ -9,7 +9,7 @@ services:
       - "1433:1433"
 
   eventstore:
-    image: eventstore/eventstore:21.10.0-buster-slim
+    image: eventstore/eventstore:23.10.0-bookworm-slim
     environment:
       - EVENTSTORE_CLUSTER_SIZE=1
       - EVENTSTORE_RUN_PROJECTIONS=All
@@ -19,6 +19,20 @@ services:
       - EVENTSTORE_INSECURE=true
       - EVENTSTORE_ENABLE_EXTERNAL_TCP=true
       - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+      - EVENTSTORE_TRUSTED_ROOT_CERTIFICATES_PATH=/certs
     ports:
       - "1113:1113"
       - "2113:2113"
+    volumes:
+      - type: volume
+        source: eventstore-volume
+        target: /var/lib/eventstore
+    networks:
+      - esdb_network
+
+volumes:
+  eventstore-volume:
+
+networks:
+  esdb_network:
+    driver: bridge

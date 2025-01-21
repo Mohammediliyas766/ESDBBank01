@@ -122,18 +122,4 @@ public class BankController : ControllerBase
 
         return NoContent();
     }
-
-    [HttpGet("daily-summary/{date}")]
-    public async Task<IActionResult> GetDailySummary(string date)
-    {
-        var result = await _eventStore.GetProjectionResultAsync("DailyTransactionSummary", date);
-        return Ok(result);
-    }
-
-    [HttpGet("account-activity/{accountNumber}")]
-    public async Task<IActionResult> GetAccountActivity(string accountNumber)
-    {
-        var result = await _eventStore.GetProjectionResultAsync("AccountActivityMonitor", accountNumber);
-        return Ok(result);
-    }
 }
