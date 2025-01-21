@@ -48,49 +48,4 @@ public class EventStoreRepository : IEventStore
 
         return events;
     }
-
-    public async Task<ProjectionResultDto> GetCustomerAccountsProjectionAsync()
-    {
-        var projectionName = "CustomerAccountsProjection";
-        var result = new ProjectionResultDto();
-
-        try
-        {
-            // Create the URL for the projection state
-            var streamName = $"$projections-{projectionName}-result";
-
-            var streamResult = _client.ReadStreamAsync(
-                Direction.Backwards,
-                streamName,
-                StreamPosition.End,
-                1
-            );
-
-            var eventData = await streamResult.FirstOrDefaultAsync();
-            if (eventData.Event != null)
-            {
-                var jsonData = System.Text.Encoding.UTF8.GetString(eventData.Event.Data.Span);
-                var projectionState = JsonSerializer.Deserialize<ProjectionResultDto>(
-                    jsonData,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }
-                );
-
-                if (projectionState != null)
-                {
-                    return projectionState;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log the error
-            Console.WriteLine($"Error reading projection: {ex.Message}");
-            throw;
-        }
-
-        return result;
-    }
 }

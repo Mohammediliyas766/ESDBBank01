@@ -128,25 +128,5 @@
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BankAPI.Controllers.BankController",
-    "Method": "GetCustomerAccounts",
-    "RelativePath": "api/Bank/customers",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "BankAPI.DTOs.ProjectionResultDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   }
 ]

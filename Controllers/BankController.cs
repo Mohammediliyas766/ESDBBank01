@@ -122,18 +122,4 @@ public class BankController : ControllerBase
 
         return NoContent();
     }
-
-    [HttpGet("customers")]
-    public async Task<ActionResult<ProjectionResultDto>> GetCustomerAccounts()
-    {
-        try
-        {
-            var result = await _eventStore.GetCustomerAccountsProjectionAsync();
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error retrieving customer accounts: {ex.Message}");
-        }
-    }
 }
