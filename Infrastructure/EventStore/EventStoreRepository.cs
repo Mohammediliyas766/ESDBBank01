@@ -65,5 +65,27 @@ namespace BankAPI.Infrastructure.EventStore
                 return parts[1];
             return string.Empty;
         }
+
+        public async Task<IEnumerable<object>> GetEventsForAccountAsync(string accountNumberPrefix)
+        {
+            var events = new List<object>();
+            var result = _client.ReadAllAsync(
+                Direction.Forwards,
+                Position.Start
+            );
+
+            await foreach (var @event in result)
+            {
+                var streamName = @event.Event.EventStreamId;
+                if (streamName.StartsWith(accountNumberPrefix))
+                {
+                    var eventData = JsonSerializer.Deserialize<object>(@event.Event.Data.Span);
+                    if (eventData != null)
+                        events.Add(eventData);
+                }
+            }
+
+            return events;
+        }
     }
 }

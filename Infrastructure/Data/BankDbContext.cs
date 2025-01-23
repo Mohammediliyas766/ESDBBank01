@@ -10,6 +10,7 @@ public class BankDbContext : DbContext
     }
 
     public DbSet<Account> Accounts { get; set; }
+    public DbSet<EventData> EventData { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
