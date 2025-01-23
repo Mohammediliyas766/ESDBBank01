@@ -31,6 +31,7 @@ builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Crea
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IEventStore, EventStoreRepository>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -45,10 +46,18 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Apply migrations
-using (var scope = app.Services.CreateScope())
+try
 {
-    var db = scope.ServiceProvider.GetRequiredService<BankDbContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<BankDbContext>();
+        db.Database.Migrate();
+    }
+}
+catch (Exception ex)
+{
+    // Log the exception
+    Console.WriteLine($"Error applying migrations: {ex.Message}");
 }
 
 app.Run();
