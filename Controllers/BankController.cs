@@ -22,22 +22,22 @@ namespace BankAPI.Controllers
             _eventRepository = eventRepository;
         }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Account>>> GetAllAccounts()
-    {
-        var accounts = await _accountRepository.GetAllAsync();
-        return Ok(accounts);
-    }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Account>>> GetAllAccounts()
+        {
+            var accounts = await _accountRepository.GetAllAsync();
+            return Ok(accounts);
+        }
 
-    [HttpGet("{accountNumber}")]
-    public async Task<ActionResult<Account>> GetAccount(string accountNumber)
-    {
-        var account = await _accountRepository.GetByAccountNumberAsync(accountNumber);
-        if (account == null)
-            return NotFound();
+        [HttpGet("{accountNumber}")]
+        public async Task<ActionResult<Account>> GetAccount(string accountNumber)
+        {
+            var account = await _accountRepository.GetByAccountNumberAsync(accountNumber);
+            if (account == null)
+                return NotFound();
 
-        return Ok(account);
-    }
+            return Ok(account);
+        }
 
         [HttpPost]
         public async Task<ActionResult<Account>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
