@@ -42,70 +42,9 @@ namespace BankAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Account>> CreateAccount([FromBody] CreateAccountDto createAccountDto)
         {
-            var account = await CreateAccountInternal(createAccountDto);
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = nameof(AccountCreated),
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
-            return CreatedAtAction(nameof(GetAccount), new { accountNumber = account.AccountNumber }, account);
-        }
+            if (await _accountRepository.AccountNumberExistsAsync(createAccountDto.AccountNumber))
+                return BadRequest("Account number already exists");
 
-        [HttpPost("{accountNumber}/credit")]
-        public async Task<IActionResult> Credit(string accountNumber, [FromBody] decimal amount)
-        {
-            var account = await CreditAccountInternal(accountNumber, amount);
-            if (account == null)
-                return NotFound();
-
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = nameof(AmountCredited),
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
-            return Ok(account);
-        }
-
-        [HttpPost("{accountNumber}/debit")]
-        public async Task<IActionResult> Debit(string accountNumber, [FromBody] decimal amount)
-        {
-            var account = await DebitAccountInternal(accountNumber, amount);
-            if (account == null)
-                return NotFound();
-
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = nameof(AmountDebited),
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
-            return Ok(account);
-        }
-
-        [HttpDelete("{accountNumber}")]
-        public async Task<IActionResult> DeleteAccount(string accountNumber)
-        {
-            var account = await DeleteAccountInternal(accountNumber);
-            if (account == null)
-                return NotFound();
-
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = nameof(AccountDeleted),
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
-            return NoContent();
-        }
-
-        private async Task<Account> CreateAccountInternal(CreateAccountDto createAccountDto)
-        {
             var account = new Account
             {
                 Id = Guid.NewGuid(),
@@ -123,94 +62,68 @@ namespace BankAPI.Controllers
                 account.Balance
             );
             await _eventStore.SaveEventAsync($"account-{account.AccountNumber}", @event);
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = @event.GetType().Name,
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
 
-            return account;
+            return CreatedAtAction(nameof(GetAccount), new { accountNumber = account.AccountNumber }, account);
         }
 
-        private async Task<Account?> CreditAccountInternal(string accountNumber, decimal amount)
+        [HttpPost("{accountNumber}/credit")]
+        public async Task<IActionResult> Credit(string accountNumber, [FromBody] decimal amount)
         {
             var account = await _accountRepository.GetByAccountNumberAsync(accountNumber);
             if (account == null)
-                return null;
+                return NotFound();
+
+            if (amount <= 0)
+                return BadRequest("Amount must be greater than 0");
 
             account.Balance += amount;
             await _accountRepository.UpdateAsync(account);
 
-            var @event = new AmountCredited(
-                account.AccountNumber,
-                amount,
-                account.Balance
-            );
+            var @event = new AmountCredited(account.AccountNumber, amount, account.Balance);
             await _eventStore.SaveEventAsync($"account-{account.AccountNumber}", @event);
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = @event.GetType().Name,
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
 
-            return account;
+            return Ok(account);
         }
 
-        private async Task<Account?> DebitAccountInternal(string accountNumber, decimal amount)
+        [HttpPost("{accountNumber}/debit")]
+        public async Task<IActionResult> Debit(string accountNumber, [FromBody] decimal amount)
         {
             var account = await _accountRepository.GetByAccountNumberAsync(accountNumber);
             if (account == null)
-                return null;
+                return NotFound();
+
+            if (amount <= 0)
+                return BadRequest("Amount must be greater than 0");
 
             if (account.Balance < amount)
-                return null;
+                return BadRequest("Insufficient balance");
 
             account.Balance -= amount;
             await _accountRepository.UpdateAsync(account);
 
-            var @event = new AmountDebited(
-                account.AccountNumber,
-                amount,
-                account.Balance
-            );
+            var @event = new AmountDebited(account.AccountNumber, amount, account.Balance);
             await _eventStore.SaveEventAsync($"account-{account.AccountNumber}", @event);
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = @event.GetType().Name,
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
 
-            return account;
+            return Ok(account);
         }
 
-        private async Task<Account?> DeleteAccountInternal(string accountNumber)
+        [HttpDelete("{accountNumber}")]
+        public async Task<IActionResult> DeleteAccount(string accountNumber)
         {
             var account = await _accountRepository.GetByAccountNumberAsync(accountNumber);
             if (account == null)
-                return null;
+                return NotFound();
+
+            if (account.Balance > 0)
+                return BadRequest("Cannot delete account with positive balance");
 
             await _accountRepository.DeleteAsync(accountNumber);
 
-            var @event = new AccountDeleted(
-                account.AccountNumber,
-                DateTime.UtcNow
-            );
-            await _eventStore.SaveEventAsync($"account-{account.AccountNumber}", @event);
-            await _eventRepository.SaveEventDataAsync(new EventData
-            {
-                EventType = @event.GetType().Name,
-                AccountNumber = account.AccountNumber,
-                CustomerName = account.CustomerName,
-                Balance = account.Balance
-            });
+            var @event = new AccountDeleted(accountNumber, DateTime.UtcNow);
+            await _eventStore.SaveEventAsync($"account-{accountNumber}", @event);
 
-            return account;
+            return NoContent();
         }
+
     }
 }
