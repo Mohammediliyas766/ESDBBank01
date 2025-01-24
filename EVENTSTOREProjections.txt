@@ -54,3 +54,50 @@ fromAll()
       );
     },
   });
+
+
+  ----------------------
+  //Last5Events
+
+  fromAll()
+.when({
+    $init: function() {
+        return {
+            events: []
+        };
+    },
+    $any: function(state, evt) {
+        // More lenient stream matching
+        if (evt.streamId && 
+            (evt.streamId.includes('account') || 
+             evt.streamId.startsWith('account'))) {
+            
+            try {
+                // Try parsing event data
+                var parsedData = evt.data ? 
+                    (typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data) 
+                    : null;
+
+                var eventDetails = {
+                    streamId: evt.streamId,
+                    eventType: evt.type, // Include the event type
+                    timestamp: evt.created,
+                    fullEventData: parsedData
+                };
+
+                // Add to events list
+                state.events.push(eventDetails);
+
+                // Keep only the last 5 events
+                if (state.events.length > 5) {
+                    state.events.shift();
+                }
+            } catch (error) {
+                // Silently handle parsing errors
+                return state;
+            }
+        }
+
+        return state;
+    }
+});
