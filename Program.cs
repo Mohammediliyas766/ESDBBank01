@@ -30,7 +30,6 @@ builder.Services.AddSingleton(new EventStoreClient(EventStoreClientSettings.Crea
 // Add Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IEventStore, EventStoreRepository>();
-builder.Services.AddScoped<IEventRepository, EventRepository>();
 
 var app = builder.Build();
 

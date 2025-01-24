@@ -1,9 +1,10 @@
-using BankAPI.Domain.Events;
+using Azure;
 using BankAPI.Infrastructure.Data;
-using BankAPI.Infrastructure.EventStore;
 using EventStore.Client;
-using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 using System.Text.Json;
+using static Grpc.Core.Metadata;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BankAPI.Infrastructure.EventStore
 {
@@ -56,17 +57,7 @@ namespace BankAPI.Infrastructure.EventStore
 
             return events;
         }
-
-
-        private string GetAccountNumberFromStreamName(string streamName)
-        {
-            var parts = streamName.Split('-');
-            if (parts.Length > 1)
-                return parts[1];
-            return string.Empty;
-        }
-
-        public async Task<IEnumerable<object>> GetEventsForAccountAsync(string accountNumberPrefix)
+        public async Task<IEnumerable<object>> GetEventsForStreamAsync(string streamName)
         {
             var events = new List<object>();
             var result = _client.ReadAllAsync(
@@ -76,8 +67,7 @@ namespace BankAPI.Infrastructure.EventStore
 
             await foreach (var @event in result)
             {
-                var streamName = @event.Event.EventStreamId;
-                if (streamName.StartsWith(accountNumberPrefix))
+                if (@event.Event.EventStreamId == streamName)
                 {
                     var eventData = JsonSerializer.Deserialize<object>(@event.Event.Data.Span);
                     if (eventData != null)
@@ -87,5 +77,6 @@ namespace BankAPI.Infrastructure.EventStore
 
             return events;
         }
+      
     }
 }

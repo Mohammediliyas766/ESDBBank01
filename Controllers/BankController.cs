@@ -13,13 +13,11 @@ namespace BankAPI.Controllers
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IEventStore _eventStore;
-        private readonly IEventRepository _eventRepository;
 
-        public BankController(IAccountRepository accountRepository, IEventStore eventStore, IEventRepository eventRepository)
+        public BankController(IAccountRepository accountRepository, IEventStore eventStore)
         {
             _accountRepository = accountRepository;
             _eventStore = eventStore;
-            _eventRepository = eventRepository;
         }
 
         [HttpGet]
